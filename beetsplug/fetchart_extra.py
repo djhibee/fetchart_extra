@@ -70,6 +70,7 @@ class FetchArtExtraPlugin(BeetsPlugin):
     # Album processor
     # -------------------------
     def _process_album(self, album, pretend=False):
+        album_safe = str(album).replace('{', '[').replace('}', ']')
         mbid = album.mb_albumid
         if not mbid:
             self._log.debug(f"No MBID found for {album}, skipping artwork fetch.")
@@ -79,12 +80,12 @@ class FetchArtExtraPlugin(BeetsPlugin):
 
         for art_type in self.config['types'].get():
             if self._art_exists(album_dir, art_type):
-                self._log.debug(f"{art_type} already exists for {album}")
+                self._log.debug(f"{art_type} already exists for {album_safe}")
                 continue
 
             for source in self.config['sources'].get():
                 if pretend:
-                    self._log.debug(f"[pretend] Would try {art_type} from {source} for {album}")
+                    self._log.debug(f"[pretend] Would try {art_type} from {source} for {album_safe}")
                     continue
 
                 if source == 'fanarttv':
@@ -111,7 +112,7 @@ class FetchArtExtraPlugin(BeetsPlugin):
                                 if resize_cfg and len(resize_cfg) == 2:
                                     w, h = map(int, resize_cfg)
                                     self._resize_image(out_path, w, h)
-                            self._log.debug(f"✔ {os.path.basename(out_path)} ready for {album} (from {source})")
+                            self._log.debug(f"✔ {os.path.basename(out_path)} ready for {album_safe} (from {source})")
                     break
 
                 elif image_bytes:
@@ -131,10 +132,10 @@ class FetchArtExtraPlugin(BeetsPlugin):
                                 w, h = map(int, resize_cfg)
                                 self._resize_image(out_path, w, h)
 
-                    self._log.debug(f"✔ {art_type} ready for {album} (from {source})")
+                    self._log.debug(f"✔ {art_type} ready for {album_safe} (from {source})")
                     break
             else:
-                self._log.warning(f"⚠ No valid {art_type} found for {album}")
+                self._log.warning(f"⚠ No valid {art_type} found for {album_safe}")
 
     # -------------------------
     # Helpers
