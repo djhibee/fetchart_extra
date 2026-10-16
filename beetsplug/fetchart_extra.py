@@ -42,7 +42,10 @@ class FetchArtExtraPlugin(BeetsPlugin):
     # Import stage
     # -------------------------
     def import_stage(self, session, task):
-        album = task.album
+        # Singleton imports (-s) have no album; extra artwork is album-level only.
+        if not getattr(task, 'is_album', False):
+            return
+        album = getattr(task, 'album', None)
         if album:
             self._process_album(album, pretend=False)
 
